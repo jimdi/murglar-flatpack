@@ -9,7 +9,7 @@ jobs:
   build-flatpak:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/flatpak/flatpak-builder-image:latest
+      image: ghcr.io/flathub/flathub-ci:latest
 
     steps:
       - name: Checkout repo
@@ -22,6 +22,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          apt update && apt install -y jq
           pip3 install flatpak-external-data-exporter
 
       - name: Get latest release tag
