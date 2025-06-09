@@ -1,0 +1,87 @@
+name: Build and publish Flatpak using flatpak.Builder + JBR 21
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Ежедневный запуск
+  workflow_dispatch: # Ручной запуск
+
+jobs:
+  build-flatpak:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flatpak/flatpak-builder-image:latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up working directory
+        run: |
+          mkdir -p /workspace
+          cd /workspace
+
+      - name: Install dependencies
+        run: |
+          pip3 install flatpak-external-data-exporter
+
+      - name: Get latest release tag
+        id: latest_release
+        run: |
+          LATEST_TAG=$(curl -s https://api.github.com/repos/badmannersteam/murglar-downloads/releases/latest  | jq -r '.tag_name')
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+
+      - name: Generate manifest from Builder file
+        run: |
+          cp ../flatpak/org.murglar.Murglar.json /workspace/org.murglar.Murglar.builder
+          cd /workspace
+          flatpak-external-data-exporter --output-json org.murglar.Murglar.json org.murglar.Murglar.builder
+
+      - name: Copy run script
+        run: |
+          cp ../flatpak/run.sh /workspace/run.sh
+
+      - name: Add JBR 21 extension
+        run: |
+          cat > /workspace/jbr-extension.json << EOL
+{
+  "add-extensions": {
+    "org.jetbrains.jbr.vanilla": {
+      "directory": "jbr",
+      "version": "21",
+      "required": true,
+      "autodelete": false
+    }
+  }
+}
+EOL
+          jq -s '.[0] * .[1]' org.murglar.Murglar.json jbr-extension.json > final.json && mv final.json org.murglar.Murglar.json
+
+      - name: Install Flathub repo
+        run: |
+          flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo 
+
+      - name: Build application
+        run: |
+          cd /workspace
+          flatpak-builder --force build-dir org.murglar.Murglar.json
+
+      - name: Export to repository
+        run: |
+          cd /workspace
+          flatpak build-export repo build-dir
+          flatpak build-bundle repo Murglar.flatpak org.murglar.Murglar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Murglar.flatpak
+          path: /workspace/Murglar.flatpak
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          name: "Murglar Flatpak v${{ env.LATEST_TAG }}"
+          tag: "${{ env.LATEST_TAG }}"
+          generateReleaseNotes: true
+          artifacts: "Murglar.flatpak"
+          overwrite: true
