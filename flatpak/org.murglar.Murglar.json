@@ -1,0 +1,13 @@
+{
+  "name": "org.murglar.Murglar",
+  "url": "https://github.com/badmannersteam/murglar-downloads/releases/latest", 
+  "type": "github",
+  "tag": "latest",
+  "assets": [
+    {
+      "filename": "*-all-platforms.jar",
+      "type": "jar"
+    }
+  ],
+  "extra-cmdline-args": []
+}
