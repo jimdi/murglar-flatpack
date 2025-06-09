@@ -72,7 +72,7 @@ jobs:
           flatpak build-bundle repo Murglar.flatpak org.murglar.Murglar
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Murglar.flatpak
           path: /workspace/Murglar.flatpak
