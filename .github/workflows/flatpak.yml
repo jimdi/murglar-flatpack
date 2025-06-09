@@ -42,18 +42,18 @@ jobs:
 
       - name: Add JBR 21 extension
         run: |
-          cat > /workspace/jbr-extension.json << EOL
-{
-  "add-extensions": {
-    "org.jetbrains.jbr.vanilla": {
-      "directory": "jbr",
-      "version": "21",
-      "required": true,
-      "autodelete": false
-    }
-  }
-}
-EOL
+          cat > /workspace/jbr-extension.json <<- 'EOL'
+            {
+              "add-extensions": {
+                "org.jetbrains.jbr.vanilla": {
+                  "directory": "jbr",
+                  "version": "21",
+                  "required": true,
+                  "autodelete": false
+                }
+              }
+            }
+            EOL
           jq -s '.[0] * .[1]' org.murglar.Murglar.json jbr-extension.json > final.json && mv final.json org.murglar.Murglar.json
 
       - name: Install Flathub repo
