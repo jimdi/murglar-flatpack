@@ -72,8 +72,8 @@ jobs:
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          name: "Murglar Flatpak v\${{ env.LATEST_TAG }}"
-          tag: "\${{ env.LATEST_TAG }}"
+          name: "Murglar Flatpak v${{ env.LATEST_TAG }}"
+          tag: "${{ env.LATEST_TAG }}"
           generateReleaseNotes: true
           artifacts: "Murglar.flatpak"
           overwrite: true
