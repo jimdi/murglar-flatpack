@@ -23,7 +23,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          dnf install -y jq python3-pip
+          apk add --no-cache jq python3 py3-pip
           pip3 install flatpak-external-data-exporter
 
       - name: Generate manifest from YML
